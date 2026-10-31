@@ -1,0 +1,237 @@
+---
+title: "Generate single cell RNA sequencing objects"
+author: "Colette T."
+date: "October 30, 2026"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+**Purpose:**
+Processes single cell RNA-seq datasets and generates the DESeq2 objects for use in downstream analyses
+
+**Datasets:**
+1. Yang et al.
+2. Vasilesvka et al.
+3. Pozniak et al.
+4. Jerby-Arnon et al. 
+
+**Outputs:**
+Seurat objects for each dataset for use in downstream analyses.
+
+
+# Yang et al.
+
+**Source:** GEO GSE164614
+
+
+# Set up necessary background
+
+## Libraries
+
+```{r}
+suppressPackageStartupMessages({
+  library(data.table)
+  library(DESeq2)
+  library(here)
+  library(GSEABase)
+  library(R.utils)
+  library(Seurat)
+  library(SingleCellExperiment)
+  #library(SeuratData)
+  #library(SeuratDisk)
+})
+
+
+```
+
+## Generate Location to save Files
+
+```{r}
+
+#generate results directory in current folder
+resultsDir1 <- here("data","data_objects")
+
+# Automatically create the folder on the computer if it doesn't exist
+if (!dir.exists(resultsDir1)) {
+  dir.create(resultsDir1, recursive = TRUE)
+}
+
+# Add location of counts files heres
+pathToCounts <- "C:/path/to/Counts"
+
+```
+
+# scRNA-seq dataset 1 (Yang et al.)
+
+**Source:** GEO GSE164614
+Ensure file names are in the form "XX.tsv.gz" only
+
+```{r GSE164614}
+# double check names
+# Rename genes.tsv.gz to features.tsv.gz in your folder
+old_name <- file.path(pathToCounts, "GSE164614", "genes.tsv.gz")
+new_name <- file.path(pathToCounts, "GSE164614", "features.tsv.gz")
+
+if (file.exists(old_name)) {
+  file.rename(from = old_name, to = new_name)
+}
+
+counts.matrix <- Read10X(data.dir = file.path(pathToCounts,"GSE164614"))
+
+yang <- CreateSeuratObject(
+  counts = counts.matrix, 
+  project = "MyProject", 
+  min.cells = 3, 
+  min.features = 200
+)
+
+# add Conditions
+yang$Condition <- ifelse(grepl("-1$", colnames(yang)), "treated", "untreated")
+
+# percentage feature set
+yang <- PercentageFeatureSet(yang, pattern = "^MT-", col.name = "percent.mt")
+
+
+VlnPlot(
+    yang,
+    features = c(
+        "nFeature_RNA",
+        "nCount_RNA",
+        "percent.mt"
+    ),
+    ncol = 3
+)
+
+
+# sctransform
+yang <- SCTransform(yang, vars.to.regress = "percent.mt", verbose = FALSE)
+
+# save object
+SaveSeuratRds(object = yang,  file = file.path(resultsDir1,"yang.rds"))
+
+
+```
+
+# scRNA-seq dataset 2 (Vasilevska et al.)
+
+**Source:** GEO GSE229908
+Download `GSE229908_FNA_SCE.rds.gz` before running this section. Do not unzip.
+
+```{r}
+# file location
+path_zipped <- file.path(pathToCounts,"GSE229908","GSE229908_FNA_SCE.rds.gz")
+path_unzipped <- file.path(pathToCounts,"GSE229908","GSE229908_FNA_SCE.rds")
+
+
+# check if file is unzip
+if (!file.exists(path_unzipped)) {
+  message("Uncompressing ", gz_file, "...")
+  R.utils::gunzip(path_zipped, remove = FALSE)
+} else {
+  message("Unzipped file already exists. Skipping gunzip.")
+}
+
+vasilevska_SCE <- readRDS(path_unzipped)
+
+# convert to seurat
+vasilevska <- as.Seurat(
+  vasilevska_SCE, 
+  counts = "counts",     # Name of the assay slot for raw counts
+  data = "logcounts",    # Name of the assay slot for normalized/log data (set to NULL if none exists)
+  project = "GSE229908"  # Optional project name
+)
+
+# percentage feature set
+vasilevska <- PercentageFeatureSet(vasilevska, pattern = "^MT-", col.name = "percent.mt")
+
+
+VlnPlot(
+    vasilevska,
+    features = c(
+        "nFeature_RNA",
+        "nCount_RNA",
+        "percent.mt"
+    ),
+    ncol = 3
+)
+
+# Skip QC_Filtering (has already been filtered)
+
+
+# perform sctransform
+vasilevska <- PercentageFeatureSet(vasilevska, pattern = "^MT-", col.name = "percent.mt")
+vasilevska <- SCTransform(vasilevska, vars.to.regress = "percent.mt", verbose = FALSE)
+
+SaveSeuratRds(object = vasilevska,  file = file.path(resultsDir1,"vasilevska.rds"))
+
+```
+
+# scRNA-seq dataset 3 (Pozniak et al.)
+
+**Source:** EGA: EGAD00001009291
+
+**Inputs:**
+EGAD00001009291 was provided as a pre-generated Seurat object. Therefore, analysis begins from the provided Seurat object rather than from raw sequencing files.
+
+# scRNA-seq dataset 4 (Jerby-Arnon et al.)
+
+**Source:** GEO GSE115978
+
+**Memory requirement:**  
+This dataset is memory intensive. If there is limited memory available, it is recommended to run this in a fresh R session. 
+
+```{r GSE115978}
+counts_file <- list.files(file.path(pathToCounts,"GSE115978"), pattern = "counts\\.csv\\.gz$", full.names = TRUE)
+anno_file   <- list.files(file.path(pathToCounts,"GSE115978"), pattern = "cell\\.annotations\\.csv\\.gz$", full.names = TRUE)
+
+# safety check
+if (length(counts_file) == 0) stop("Could not find the counts file in the specified directory.")
+if (length(anno_file) == 0)   stop("Could not find the annotation file in the specified directory.")
+
+
+message("Loading count matrix...")
+counts_df <- fread(counts_file, data.table = FALSE)
+rownames(counts_df) <- counts_df[, 1]
+counts_matrix <- as.matrix(counts_df[, -1])
+
+
+message("Reading annotation file: ", basename(anno_file))
+metadata_df <- fread(anno_file, data.table = FALSE)
+rownames(metadata_df) <- metadata_df[, 1]
+
+jerbyarnon <- CreateSeuratObject(
+  counts = counts_matrix,
+  meta.data = metadata_df,
+  project = "GSE115978",
+  min.cells = 3,
+  min.features = 200
+)
+
+# Clear variables from memory
+rm(counts_df, counts_matrix, metadata_df)
+gc()
+
+# percentage feature set
+jerbyarnon <- PercentageFeatureSet(jerbyarnon, pattern = "^MT-", col.name = "percent.mt")
+
+
+VlnPlot(
+    jerbyarnon,
+    features = c(
+        "nFeature_RNA",
+        "nCount_RNA",
+        "percent.mt"
+    ),
+    ncol = 3
+)
+
+# QC_Filtering not necessary as authors seem to have done it already
+# perform sctransform
+jerbyarnon <- SCTransform(jerbyarnon, vars.to.regress = "percent.mt", verbose = FALSE)
+
+SaveSeuratRds(object = jerbyarnon,  file = file.path(resultsDir1,"jerbyarnon.rds"))
+```

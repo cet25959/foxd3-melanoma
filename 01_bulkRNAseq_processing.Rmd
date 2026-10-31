@@ -1,0 +1,333 @@
+---
+title: "Generate Bulk RNA sequencing objects"
+author: "Colette T."
+date: "October 30, 2026"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+**Purpose:**
+Processes bulk RNA-seq datasets and generates the DESeq2 objects for use in downstream analyses
+
+**Datasets:**
+1. Internal RNA-seq dataset 1
+2. Internal RNA-seq dataset 2
+3. DuBose et al.
+4. Celeste et al.
+5. Kwong et al.
+6. Hugo et al. 
+
+**Outputs:**
+DESeq2 objects for each dataset for use in downstream analyses.
+
+
+# Set up necessary background
+
+## Libraries
+
+```{r}
+suppressMessages(library(DESeq2))
+suppressMessages(library(GEOquery))
+suppressMessages(library(here))
+```
+
+## Generate Location to save Files
+```{r}
+# sraProj <- "data_objects"
+resultsDir1 <- here("data", "data_objects")
+
+# Automatically create the folder on the computer if it doesn't exist
+if (!dir.exists(resultsDir1)) {
+  dir.create(resultsDir1, recursive = TRUE)
+}
+
+# Add location of counts files heres
+pathToCounts <- "C:/path/to/Counts"
+```
+
+# Internal Datasets
+
+# RNA-seq dataset 1 (overexpression)
+
+**Source:** GEO GSE352223
+
+
+```{r}
+# get all the bulk rna data
+files <- data.frame(fname = list.files(file.path(path = pathToCounts, "GSE352223"), pattern = "*.q4_sorted.counts"), stringsAsFactors = FALSE)
+
+csv_files <- list.files(path = (file.path(path = pathToCounts, "GSE352223")), pattern = "\\.csv$", full.names = TRUE)
+
+if (length(csv_files) > 0) {
+  metadata_oe <- read.csv(csv_files[1])
+  message("Successfully loaded: ", basename(csv_files[1]))
+} else {
+  stop("No CSV files found in the directory!")
+}
+
+metadata_oe$condition <- factor(metadata_oe$condition)
+
+dds_OE <- DESeqDataSetFromHTSeqCount(
+  sampleTable = metadata_oe,
+  directory = file.path(pathToCounts, "GSE352223"),
+  design = ~condition
+)
+
+# filter
+keep <- rowSums(counts(dds_OE)) >= 10
+dds_OE <- dds_OE[keep, ]
+dds_OE <- DESeq(dds_OE)
+
+# save dds object
+saveRDS(object = dds_OE, file = file.path(resultsDir1, "dds_OE.rds"))
+```
+
+# Internal RNA-seq dataset 2 (knockout)
+
+**Source:** GEO GSE352393
+
+```{r}
+# get all the bulk rna data
+files <- data.frame(fname = list.files(file.path(path = pathToCounts, "GSE352393"), pattern = "*.q4_sorted.counts"), stringsAsFactors = FALSE)
+
+csv_files <- list.files(path = (file.path(path = pathToCounts, "GSE352393")), pattern = "\\.csv$", full.names = TRUE)
+
+if (length(csv_files) > 0) {
+  metadata_ko <- read.csv(csv_files[1])
+  message("Successfully loaded: ", basename(csv_files[1]))
+} else {
+  stop("No CSV files found in the directory!")
+}
+
+metadata_ko$condition <- factor(metadata_ko$condition)
+
+dds_KO <- DESeqDataSetFromHTSeqCount(
+  sampleTable = metadata_ko,
+  directory = file.path(pathToCounts, "GSE352393"),
+  design = ~condition
+)
+
+# filter
+keep <- rowSums(counts(dds_KO)) >= 10
+dds_KO <- dds_KO[keep, ]
+dds_KO <- DESeq(dds_KO)
+
+# save dds object
+saveRDS(object = dds_KO, file = file.path(resultsDir1, "dds_KO.rds"))
+```
+
+## Tiago et al
+
+**Source:** GEO GSE228600
+
+**Inputs:**
+Load DESeq2 object generated using the preprocessing pipeline described in
+[Tiago et al./https://github.com/AplinLabBioinformatics/Tiago_NR2F1/tree/main/code]. This DESeq2 object was used as the input for the analyses presented in this paper. 
+
+# External Datasets
+
+## DuBose et al. Dataset
+
+**Source:** GEO GSE255541
+
+
+```{r}
+# get all the bulk rna data
+files <- data.frame(fname = list.files(file.path(path = pathToCounts, "GSE255541"), pattern = "*.q4_sorted.counts"), stringsAsFactors = FALSE)
+
+csv_files <- list.files(path = (file.path(path = pathToCounts, "GSE255541")), pattern = "\\.csv$", full.names = TRUE)
+
+if (length(csv_files) > 0) {
+  metadata_dubose <- read.csv(csv_files[1])
+  message("Successfully loaded: ", basename(csv_files[1]))
+} else {
+  stop("No CSV files found in the directory!")
+}
+
+metadata_dubose$grp <- factor(metadata_dubose$grp) 
+metadata_dubose$pseudotime <- factor(metadata_dubose$pseudotime, levels = c("0","1","7"))
+metadata_dubose$treatment <- factor(metadata_dubose$treatment, levels = c("DMSO","dabrafenib"))
+metadata_dubose$treat.time <- factor(metadata_dubose$treat.time, levels = c("DT_0","DT_1","DT_7"))
+metadata_dubose$repl <- factor(metadata_dubose$repl)
+
+
+metadata_dubose$condition <- paste0(metadata_dubose$grp, ".", metadata_dubose$treat.time)
+metadata_dubose$condition <- factor(metadata_dubose$condition)
+
+dds_dubose <- DESeqDataSetFromHTSeqCount(
+  sampleTable = metadata_dubose,
+  directory = file.path(pathToCounts, "GSE255541"),
+  design = ~condition
+)
+
+# filter
+keep <- rowSums(counts(dds_dubose)) >= 10
+dds_dubose <- dds_dubose[keep, ]
+dds_dubose <- DESeq(dds_dubose)
+
+# save dds object
+saveRDS(object = dds_dubose, file = file.path(resultsDir1, "dds_dubose.rds"))
+```
+
+
+## Celeste et al. Dataset
+
+**Source:** GEO GSE162045
+
+**Inputs:**
+- Raw gene count folder:
+- Sample metadata: 
+
+```{r}
+# get all the bulk rna data
+files <- data.frame(fname = list.files(file.path(path = pathToCounts, "GSE162045"), pattern = "*.q4_sorted.counts"), stringsAsFactors = FALSE)
+
+csv_files <- list.files(path = (file.path(path = pathToCounts, "GSE162045")), pattern = "\\.csv$", full.names = TRUE)
+
+if (length(csv_files) > 0) {
+  metadata_celeste <- read.csv(csv_files[1])
+  message("Successfully loaded: ", basename(csv_files[1]))
+} else {
+  stop("No CSV files found in the directory!")
+}
+
+metadata_celeste$condition <- factor(metadata_celeste$condition)
+
+dds_celeste <- DESeqDataSetFromHTSeqCount(
+  sampleTable = metadata_celeste,
+  directory = file.path(pathToCounts, "GSE162045"),
+  design = ~condition
+)
+
+# filter
+keep <- rowSums(counts(dds_celeste)) >= 10
+dds_celeste <- dds_celeste[keep, ]
+dds_celeste <- DESeq(dds_celeste)
+
+# save dds object
+saveRDS(object = dds_celeste, file = file.path(resultsDir1, "dds_celeste.rds"))
+
+```
+
+## Su et al. Dataset
+
+**Source:** EMTAB5493
+ 
+
+```{r Su_EMTAB5493}
+# get all the bulk rna data
+files <- data.frame(fname = list.files(file.path(path = pathToCounts, "EMTAB5493"), pattern = "*.q4_sorted.counts"), stringsAsFactors = FALSE)
+
+csv_files <- list.files(path = (file.path(path = pathToCounts, "EMTAB5493")), pattern = "\\.csv$", full.names = TRUE)
+
+if (length(csv_files) > 0) {
+  metadata_su <- read.csv(csv_files[1])
+  message("Successfully loaded: ", basename(csv_files[1]))
+} else {
+  stop("No CSV files found in the directory!")
+}
+
+metadata_su$cell_line <- factor(metadata_su$cell_line)
+metadata_su$treatment <- factor(metadata_su$treatment)
+metadata_su$timepoint <- factor(metadata_su$timepoint, levels = c("0", "3", "21", "73", "90", "none"))
+
+metadata_su$condition <- paste0(
+  metadata_su$cell_line, ".",
+  metadata_su$treatment, ".",
+  metadata_su$timepoint
+)
+
+
+dds_su <- DESeqDataSetFromHTSeqCount(sampleTable = metadata_su, 
+                                     directory = file.path(pathToCounts, "EMTAB5493"), 
+                                     design = ~cell_line)
+
+# filter
+keep <- rowSums(counts(dds_su)) >= 10
+dds_su <- dds_su[keep, ]
+dds_su <- DESeq(dds_su)
+
+# save dds object
+saveRDS(object = dds_su, file = file.path(resultsDir1, "dds_su.rds"))
+```
+
+## Kwong et al. Dataset
+
+**Source:** EGAD00001001306
+
+EGAD00001001306 is a controlled-access EGA dataset.The processed expression data used in this analysis were provided by the lab. Analysis begins from the provided processed expression matrix.
+
+## Hugo et al. Dataset
+
+**Source:** GEO GSE65185
+
+```{r}
+# get all the bulk rna data
+files <- list.files(
+    file.path(pathToCounts, "GSE65185"),
+    pattern = "\\.q4_sorted\\.counts$",
+    full.names = TRUE
+)
+
+
+count_list <- lapply(files, function(f) {
+    df <- read.table(f, header = FALSE, sep = "\t", stringsAsFactors = FALSE)
+    
+    # Assign column names
+    colnames(df) <- c("ENSG","HUGO", "COUNT")
+    
+    # Remove version suffix from ENSG (e.g., .12, .5, .01)
+    df$ENSG <- sub("\\..*", "", df$ENSG)
+    
+    # Use SRR ID as sample name
+    sample_name <- sub("\\.q4_sorted\\.counts$", "", basename(f))
+    colnames(df)[3] <- sample_name  # rename COUNT column
+    
+    df
+})
+
+
+merged_counts <- Reduce(
+  function(x, y) merge(x, y, by = c("ENSG", "HUGO"), all = TRUE),
+  count_list
+)
+
+# ensure is NA doesn't break things
+merged_counts[is.na(merged_counts)] <- 0
+
+# remove extra row
+merged_counts <- merged_counts[!grepl("^__", merged_counts$ENSG), ]
+
+# rename rownames
+rownames(merged_counts) <- merged_counts$ENSG
+merged_counts$ENSG <- NULL
+
+# remove hugo file
+merged_counts$HUGO <- NULL
+
+
+sample_info <- data.frame(
+  condition = rep("sample", ncol(merged_counts))
+)
+
+rownames(sample_info) <- colnames(merged_counts)
+
+
+dds_hugo <- DESeqDataSetFromMatrix(
+  countData = merged_counts,
+  colData = sample_info,
+  design = ~ 1
+)
+
+
+# save Hugo dds object
+saveRDS(object = dds_hugo, file = file.path(resultsDir1, "dds_hugo.rds"))
+
+```
+
+
+

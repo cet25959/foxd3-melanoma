@@ -1,0 +1,10 @@
+sampleName,fileName,grp,repl,pseudotime,condition
+SKMEL28-3-day_S13,SKMEL28-3-day-dabrafenib-rep1_S13.q4_sorted.counts,threeday,A,3,SKMEL28-3-day_3
+SKMEL28-3-day_S14,SKMEL28-3-day-dabrafenib-rep2_S14.q4_sorted.counts,threeday,B,3,SKMEL28-3-day_3
+SKMEL28-3-day_S15,SKMEL28-3-day-dabrafenib-rep3_S15.q4_sorted.counts,threeday,C,3,SKMEL28-3-day_3
+SKMEL28-9-day_S16,SKMEL28-9-day-dabrafenib-rep1_S16.q4_sorted.counts,nineday,A,9,SKMEL28-9-day_9
+SKMEL28-9-day_S17,SKMEL28-9-day-dabrafenib-rep2_S17.q4_sorted.counts,nineday,B,9,SKMEL28-9-day_9
+SKMEL28-9-day_S18,SKMEL28-9-day-dabrafenib-rep3_S18.q4_sorted.counts,nineday,C,9,SKMEL28-9-day_9
+SKMEL28-untreat_S10,SKMEL28-untreated-rep1_S10.q4_sorted.counts,untreat,A,0,SKMEL28-untreat_0
+SKMEL28-untreat_S11,SKMEL28-untreated-rep2_S11.q4_sorted.counts,untreat,B,0,SKMEL28-untreat_0
+SKMEL28-untreat_S12,SKMEL28-untreated-rep3_S12.q4_sorted.counts,untreat,C,0,SKMEL28-untreat_0

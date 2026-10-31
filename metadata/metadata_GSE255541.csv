@@ -1,0 +1,46 @@
+sampleName,fileName,grp,treatment,pseudotime,treat.time,repl,cell_line,genotypes
+SRR27937457-S45,SRR27937457-S45.q4_sorted.counts,A375_PIK3ACA_H10475,dabrafenib,7,DT_7,A,A375,ectopic PIK3CA-H1047R overexpression
+SRR27937458-S44,SRR27937458-S44.q4_sorted.counts,A375_PIK3ACA_H10475,dabrafenib,7,DT_7,B,A375,ectopic PIK3CA-H1047R overexpression
+SRR27937459-S43,SRR27937459-S43.q4_sorted.counts,A375_PIK3ACA_H10475,dabrafenib,7,DT_7,C,A375,ectopic PIK3CA-H1047R overexpression
+SRR27937460-S42,SRR27937460-S42.q4_sorted.counts,A375_PIK3ACA_H10475,dabrafenib,1,DT_1,A,A375,ectopic PIK3CA-H1047R overexpression
+SRR27937461-S41,SRR27937461-S41.q4_sorted.counts,A375_PIK3ACA_H10475,dabrafenib,1,DT_1,B,A375,ectopic PIK3CA-H1047R overexpression
+SRR27937462-S40,SRR27937462-S40.q4_sorted.counts,A375_PIK3ACA_H10475,dabrafenib,1,DT_1,C,A375,ectopic PIK3CA-H1047R overexpression
+SRR27937463-S39,SRR27937463-S39.q4_sorted.counts,A375_PIK3ACA_H10475,DMSO,0,DT_0,A,A375,ectopic PIK3CA-H1047R overexpression
+SRR27937464-S38,SRR27937464-S38.q4_sorted.counts,A375_PIK3ACA_H10475,DMSO,0,DT_0,B,A375,ectopic PIK3CA-H1047R overexpression
+SRR27937465-S37,SRR27937465-S37.q4_sorted.counts,A375_PIK3ACA_H10475,DMSO,0,DT_0,C,A375,ectopic PIK3CA-H1047R overexpression
+SRR27937466-S36,SRR27937466-S36.q4_sorted.counts,A375_PIK3CA,dabrafenib,7,DT_7,A,A375,ectopic PIK3CA overexpression
+SRR27937467-S35,SRR27937467-S35.q4_sorted.counts,A375_PIK3CA,dabrafenib,7,DT_7,B,A375,ectopic PIK3CA overexpression
+SRR27937468-S34,SRR27937468-S34.q4_sorted.counts,A375_PIK3CA,dabrafenib,7,DT_7,C,A375,ectopic PIK3CA overexpression
+SRR27937469-S33,SRR27937469-S33.q4_sorted.counts,A375_PIK3CA,dabrafenib,1,DT_1,A,A375,ectopic PIK3CA overexpression
+SRR27937470-S32,SRR27937470-S32.q4_sorted.counts,A375_PIK3CA,dabrafenib,1,DT_1,B,A375,ectopic PIK3CA overexpression
+SRR27937471-S31,SRR27937471-S31.q4_sorted.counts,A375_PIK3CA,dabrafenib,1,DT_1,C,A375,ectopic PIK3CA overexpression
+SRR27937472-S30,SRR27937472-S30.q4_sorted.counts,A375_PIK3CA,DMSO,0,DT_0,A,A375,ectopic PIK3CA overexpression
+SRR27937473-S29,SRR27937473-S29.q4_sorted.counts,A375_PIK3CA,DMSO,0,DT_0,B,A375,ectopic PIK3CA overexpression
+SRR27937474-S28,SRR27937474-S28.q4_sorted.counts,A375_PIK3CA,DMSO,0,DT_0,C,A375,ectopic PIK3CA overexpression
+SRR27937475-S27,SRR27937475-S27.q4_sorted.counts,KO11,dabrafenib,7,DT_7,A,KO11,PTEN null
+SRR27937476-S26,SRR27937476-S26.q4_sorted.counts,KO11,dabrafenib,7,DT_7,B,KO11,PTEN null
+SRR27937477-S25,SRR27937477-S25.q4_sorted.counts,KO11,dabrafenib,7,DT_7,C,KO11,PTEN null
+SRR27937478-S24,SRR27937478-S24.q4_sorted.counts,KO11,dabrafenib,1,DT_1,A,KO11,PTEN null
+SRR27937479-S23,SRR27937479-S23.q4_sorted.counts,KO11,dabrafenib,1,DT_1,B,KO11,PTEN null
+SRR27937480-S22,SRR27937480-S22.q4_sorted.counts,KO11,dabrafenib,1,DT_1,C,KO11,PTEN null
+SRR27937481-S21,SRR27937481-S21.q4_sorted.counts,KO11,DMSO,0,DT_0,A,KO11,PTEN null
+SRR27937482-S20,SRR27937482-S20.q4_sorted.counts,KO11,DMSO,0,DT_0,B,KO11,PTEN null
+SRR27937483-S19,SRR27937483-S21.q4_sorted.counts,KO11,DMSO,0,DT_0,C,KO11,PTEN null
+SRR27937484-S18,SRR27937484-S18.q4_sorted.counts,KO5,dabrafenib,7,DT_7,A,KO5,PTEN null
+SRR27937485-S17,SRR27937485-S19.q4_sorted.counts,KO5,dabrafenib,7,DT_7,B,KO5,PTEN null
+SRR27937486-S16,SRR27937486-S16.q4_sorted.counts,KO5,dabrafenib,7,DT_7,C,KO5,PTEN null
+SRR27937487-S15,SRR27937487-S15.q4_sorted.counts,KO5,dabrafenib,1,DT_1,A,KO5,PTEN null
+SRR27937488-S14,SRR27937488-S14.q4_sorted.counts,KO5,dabrafenib,1,DT_1,B,KO5,PTEN null
+SRR27937489-S13,SRR27937489-S13.q4_sorted.counts,KO5,dabrafenib,1,DT_1,C,KO5,PTEN null
+SRR27937490-S12,SRR27937490-S12.q4_sorted.counts,KO5,DMSO,0,DT_0,A,KO5,wild type
+SRR27937491-S11,SRR27937491-S11.q4_sorted.counts,KO5,DMSO,0,DT_0,B,KO5,wild type
+SRR27937492-S10,SRR27937492-S10.q4_sorted.counts,KO5,DMSO,0,DT_0,C,KO5,wild type
+SRR27937493-S9,SRR27937493-S9.q4_sorted.counts,A375,dabrafenib,7,DT_7,A,A375,wild type
+SRR27937494-S8,SRR27937494-S8.q4_sorted.counts,A375,dabrafenib,7,DT_7,B,A375,wild type
+SRR27937495-S7,SRR27937495-S7.q4_sorted.counts,A375,dabrafenib,7,DT_7,C,A375,wild type
+SRR27937496-S6,SRR27937496-S6.q4_sorted.counts,A375,dabrafenib,1,DT_1,A,A375,wild type
+SRR27937497-S5,SRR27937497-S5.q4_sorted.counts,A375,dabrafenib,1,DT_1,B,A375,wild type
+SRR27937498-S4,SRR27937498-S4.q4_sorted.counts,A375,dabrafenib,1,DT_1,C,A375,wild type
+SRR27937499-S3,SRR27937499-S3.q4_sorted.counts,A375,DMSO,0,DT_0,A,A375,wild type
+SRR27937500-S2,SRR27937500-S2.q4_sorted.counts,A375,DMSO,0,DT_0,B,A375,wild type
+SRR27937501-S1,SRR27937501-S1.q4_sorted.counts,A375,DMSO,0,DT_0,C,A375,wild type

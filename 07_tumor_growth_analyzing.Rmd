@@ -1,0 +1,235 @@
+---
+title: "Survival Analysis of Downregulated Gene Signature"
+author: "Colette T."
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+**Purpose:**
+Analyzes tumor growth over time across experimental groups and generates the tumor growth results presented in the manuscript.
+
+**Inputs:**
+1. Tumor Growth Volume excel spreadsheet
+  Source: [lab generated thus data are not provided in this repository]
+  
+**Manuscript Outputs:**
+- Figure 4B
+- Figure 4C
+
+# Libraries
+```{r}
+library(knitr)
+library(readxl)
+
+
+```
+
+## File Locations
+```{r}
+resultsDir1 <- here("data","data_objects")
+resultsDir6 <- here("data","tumor_growth")
+
+# Automatically create the folder on the computer if it doesn't exist
+if (!dir.exists(resultsDir6)) {
+  dir.create(resultsDir6,recursive = TRUE)
+}
+
+pathToVolume <- here("tumor")
+
+```
+
+# Data Preparation
+```{r}
+EV_loc <- file.path(pathToVolume,"EV_tumor_volume.txt")
+
+data_file <- file.path(pathToVolume,"tumor_volume.xlsx")
+
+
+if (!file.exists(data_file)) {
+  data_file <- "/mnt/data/FoxD3 TIL data.xlsx"
+}
+
+raw_growth <- read_excel(
+  data_file,
+  sheet = "Growth -- tumor volumes",
+  range = "B2:L8",
+  col_names = FALSE,
+  col_types = "text"
+)
+
+# The first row in this imported range contains mouse labels. Because readxl
+# assigns a single type per column, mixed text/numeric columns can otherwise
+# remain character and cause pivot_longer() type-combination errors. We
+# therefore drop the label row, assign clean names, and explicitly parse every
+# measurement column before reshaping.
+
+growth <- raw_growth[-1, ]
+
+names(growth) <- c(
+  "Day",
+  paste0("EV_", 1:5),
+  paste0("FoxD3_", 1:5)
+)
+
+parse_num <- function(x) {
+  suppressWarnings(as.numeric(gsub("[^0-9eE+\\.-]", "", as.character(x))))
+}
+
+
+
+growth <- growth |>
+  mutate(
+    Day = parse_num(Day),
+    across(-Day, parse_num)
+  )
+
+growth_long <- growth |>
+  pivot_longer(
+    cols = -Day,
+    names_to = "Mouse",
+    values_to = "Volume",
+    values_transform = list(Volume = as.numeric)
+  ) |>
+  mutate(
+    Treatment = if_else(grepl("^EV", Mouse), "EV", "FoxD3"),
+    Treatment = factor(Treatment, levels = c("EV", "FoxD3")),
+    Mouse = factor(Mouse),
+    log_volume = if_else(Volume > 0, log(Volume), NA_real_),
+    log2_volume = if_else(Volume > 0, log2(Volume), NA_real_)
+  ) |>
+  filter(!is.na(Day), !is.na(Volume))
+
+growth_long |>
+  arrange(Treatment, Mouse, Day) |>
+  head(12) |>
+  kable(caption = "First rows of long-format tumor-volume data.")
+
+summary_by_day <- growth_long |>
+  filter(Day > 0) |>
+  group_by(Treatment, Day) |>
+  summarise(
+    n = n(),
+    mean = mean(Volume),
+    median = median(Volume),
+    sd = sd(Volume),
+    sem = sd / sqrt(n),
+    min = min(Volume),
+    max = max(Volume),
+    .groups = "drop"
+  )
+
+summary_by_day |>
+  mutate(across(where(is.numeric), ~ round(.x, 3))) |>
+  kable(caption = "Tumor-volume summaries by treatment and day.")
+
+
+
+```
+
+# Tumor Growth Analysis
+```{r}
+ggplot(growth_long |> filter(Day > 0),
+       aes(x = Day, y = Volume, group = Mouse, color = Treatment)) +
+  geom_line(alpha = 0.75, linewidth = 0.8) +
+  geom_point(size = 2.4) +
+  labs(
+    x = "Day",
+    y = "Tumor volume",
+    color = "Treatment"
+  ) +
+  theme_classic(base_size = 12)
+
+
+summary_by_day <- ggplot(summary_by_day,
+       aes(x = Day, y = mean, color = Treatment, group = Treatment)) +
+  geom_line(linewidth = 1.1) +
+  geom_point(size = 3) +
+  geom_errorbar(aes(ymin = mean - sem, ymax = mean + sem), width = 0.35) +
+  labs(
+    x = "Day",
+    y = "Mean tumor volume ± SEM",
+    color = "Treatment"
+  ) +
+  theme_classic(base_size = 12)
+
+ggsave(file.path(resultsDir6,"summary_by_day.png"), summary_by_day,
+  width = 8, height = 4, dpi = 300, scale = 0.8
+)
+
+
+```
+
+# Day 14 Analysis
+```{r}
+day14 <- growth_long |>
+  filter(Day == 14)
+
+ggplot(day14, aes(x = Treatment, y = Volume, color = Treatment)) +
+  geom_boxplot(width = 0.4, outlier.shape = NA, alpha = 0.15) +
+  geom_jitter(width = 0.08, size = 3) +
+  labs(
+    x = "Treatment",
+    y = "Tumor volume at day 14"
+  ) +
+  theme_classic(base_size = 12) +
+  theme(legend.position = "none")
+
+# let's plot this more fancy
+
+
+tumor_boxplot <- ggplot(day14, aes(x = Treatment, y = Volume, color = Treatment)) +
+  geom_boxplot(width = 0.4, outlier.shape = NA, alpha = 0.15, linewidth = 1.3) +
+  geom_jitter(width = 0.08, size = 3) +
+  labs(
+    x = "Treatment",
+    y = "Tumor volume at day 14"
+  ) +
+    theme_bw(base_size = 14) +
+  theme_classic() + 
+  theme(plot.title = element_text(hjust = 0.5, size = 18), 
+        axis.title = element_text(size = 15), 
+        axis.title.y = element_text(angle = 90, vjust = 0.5), 
+        axis.text = element_text(size = 11))
+  
+  
+tumor_boxplot_toprint <- tumor_boxplot +
+  theme_classic(base_size = 12) + 
+  theme(
+    plot.title = element_blank(),
+    axis.title.x = element_blank(), # Removes "Time" from the bottom of every plot
+    axis.title.y = element_blank(), # Removes "value" from the side of every plot
+    strip.background = element_blank(), # Removes those 'bars' if they came back
+    strip.text = element_blank()
+  )
+
+ggsave(file.path(resultsDir6,"day14_boxplot.png"), 
+       tumor_boxplot_toprint, width = 4.8, height = 3, dpi = 300, scale = 1.2)
+
+
+```
+
+```{r}
+
+# convert day 14
+day14$group <- rep(1:5, length.out = nrow(day14))
+
+day14_wide <- day14 %>%
+  select(group, Treatment, Volume) %>%
+  pivot_wider(
+    names_from = Treatment,
+    values_from = Volume
+  )
+
+# calculate p-value
+wilcox_exact_p_one_sided <- wilcox.test(
+        day14_wide$FoxD3, day14_wide$EV,
+        alternative = "greater",
+        exact = TRUE)
+
+print(wilcox_exact_p_one_sided)
+      
+```
