@@ -182,8 +182,7 @@ gsva_jerby_hugo <- gsva(gbmPar_jerby_hugo)
 # generate hugo_data
 hugo_data <- as.data.frame(t(rbind(gsva_down_hugo, gsva_jerby_hugo)))
 
-# if i have time and energy, turn these into little tables
-
+# TODO: Format these results as a summary table in a future revision.
 pre_treat <- c("SRR1768821.q4_sorted.counts",
 "SRR1768822.q4_sorted.counts",
 "SRR1768825.q4_sorted.counts",
